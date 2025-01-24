@@ -8,8 +8,7 @@ generator client {
 }
 
 model Token {
-  id         Int      @id @default(autoincrement())
-  address    String   @unique
+  address    String   @id
   token      String
   price      String?
   age        String?
