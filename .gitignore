@@ -1,2 +1,11 @@
+# config files
+
 cookies.json
-trending_tokens.csv
+
+# result files
+
+*.csv
+
+# test files
+
+*.html
