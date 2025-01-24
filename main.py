@@ -1,3 +1,4 @@
+from prisma import Prisma
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -43,7 +44,56 @@ def setup_driver():
     
     return driver
 
-def scrape_data():
+async def store_to_database(rows_data, header_texts):
+    db = Prisma()
+    await db.connect()
+
+    for row in rows_data:
+        token_data = dict(zip(header_texts, row))
+        
+        try:
+            await db.token.upsert(
+                where={
+                    'address': token_data['Address']
+                },
+                data={
+                    'create': {
+                        'address': token_data['Address'],
+                        'token': token_data['Token'],
+                        'price': token_data.get('Price', ''),
+                        'age': token_data.get('Age', ''),
+                        'txns': token_data.get('Txns', ''),
+                        'volume': token_data.get('Volume', ''),
+                        'makers': token_data.get('Makers', ''),
+                        'trend5m': token_data.get('5M', ''),
+                        'trend1h': token_data.get('1H', ''),
+                        'trend6h': token_data.get('6H', ''),
+                        'trend24h': token_data.get('24H', ''),
+                        'liquidity': token_data.get('Liquidity', ''),
+                        'mcap': token_data.get('MCAP', '')
+                    },
+                    'update': {
+                        'token': token_data['Token'],
+                        'price': token_data.get('Price', ''),
+                        'age': token_data.get('Age', ''),
+                        'txns': token_data.get('Txns', ''),
+                        'volume': token_data.get('Volume', ''),
+                        'makers': token_data.get('Makers', ''),
+                        'trend5m': token_data.get('5M', ''),
+                        'trend1h': token_data.get('1H', ''),
+                        'trend6h': token_data.get('6H', ''),
+                        'trend24h': token_data.get('24H', ''),
+                        'liquidity': token_data.get('Liquidity', ''),
+                        'mcap': token_data.get('MCAP', '')
+                    }
+                }
+            )
+        except Exception as e:
+            print(f"Error storing token {token_data['Address']}: {str(e)}")
+
+    await db.disconnect()
+
+async def scrape_data():
     driver = setup_driver()
     url = 'https://dexscreener.com/?rankBy=trendingScoreM5&order=desc'
 
@@ -116,9 +166,8 @@ def scrape_data():
             #     f.write(str(rows_data))
 
             if rows_data:
-                df = pd.DataFrame(rows_data, columns=header_texts)
-                df.to_csv('trending_tokens.csv', index=False, encoding='utf-8')
-                print(f"Successfully extracted {len(rows_data)} rows")
+                await store_to_database(rows_data, header_texts)
+                print(f"Successfully extracted and stored {len(rows_data)} rows")
             else:
                 print("No data rows found in the table")
         else:
@@ -131,4 +180,5 @@ def scrape_data():
         driver.quit()
 
 if __name__ == "__main__":
-    scrape_data()
+    import asyncio
+    asyncio.run(scrape_data())
