@@ -88,17 +88,29 @@ def scrape_data():
             #     f.write(str(headers))
 
             header_texts = [header.text.strip() for header in headers if header.text.strip()]
+            header_texts.append('Address')  # Add Address column
             
             rows = table_container.select('.ds-dex-table-row')
-            # with open('rows.html', 'w', encoding='utf-8') as f:
-            #     f.write(str(rows))
+            with open('rows.html', 'w', encoding='utf-8') as f:
+                f.write(str(rows))
 
             rows_data = []
             
             for row in rows:
                 cells = row.select('.ds-table-data-cell')
                 if cells:
-                    row_data = [cell.text.strip() for cell in cells]
+                    # Get token symbol from first column
+                    symbol_element = cells[0].select_one('.ds-dex-table-row-base-token-symbol')
+                    symbol = symbol_element.text.strip() if symbol_element else ''
+                    
+                    # Get other cell data starting from second column
+                    row_data = [symbol] + [cell.text.strip() for cell in cells[1:]]
+                    
+                    # Get token address from link
+                    link = row.get('href', '')
+                    address = link.split('/')[-1] if link else ''
+                    row_data.append(address)  # Add address to row data
+                    
                     if any(row_data):
                         rows_data.append(row_data)
             
