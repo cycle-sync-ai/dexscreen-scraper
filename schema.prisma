@@ -9,6 +9,8 @@ generator client {
 
 model Token {
   address    String   @id
+  chain      String?
+  dex        String?
   token      String
   price      String?
   age        String?

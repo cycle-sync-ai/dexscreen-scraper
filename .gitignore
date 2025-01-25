@@ -1,5 +1,6 @@
 # config files
 
+.env
 .env.*
 cookies.json
 
