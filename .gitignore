@@ -6,6 +6,7 @@ cookies.json
 
 # result files
 
+__pycache__
 *.csv
 
 # test files
