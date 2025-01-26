@@ -28,3 +28,23 @@ model Token {
 
   @@map("tokens")
 }
+
+model TopTrader {
+  tokenAddress  String
+  period        String
+  rank          Int
+  wallet        String
+  boughtAmount  Float
+  boughtVolume  Float
+  soldAmount    Float
+  soldVolume    Float
+  pnl           Float
+  unrealized    String
+  balance       String
+  transactions  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@id([tokenAddress, period, rank])
+  @@map("top_traders")
+}
