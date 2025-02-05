@@ -4,6 +4,9 @@
 .env.*
 cookies.json
 
+# Do not ignore .env.example
+!.env.example
+
 # result files
 
 __pycache__
